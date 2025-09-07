@@ -17,4 +17,6 @@ public struct BoundingBox(int x, int y, int width, int height)
 
     public static BoundingBox operator +(BoundingBox box, PixelPosition position) =>
         new(box.X + position.X, box.Y + position.Y, box.Width, box.Height);
+
+    public override string ToString() => $"[X={X}, Y={Y}, W={Width}, H={Height}]";
 }

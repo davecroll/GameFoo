@@ -44,7 +44,8 @@ public class GameScene
         // Advance actors
         foreach (IActor actor in _actors)
         {
-            actor.ApplyGravity(_gravity);
+            if (!actor.IsOnGround)
+                actor.ApplyGravity(_gravity);
 
             HandleMovement(actor, deltaTime);
         }
@@ -57,26 +58,9 @@ public class GameScene
         CollisionResult? collisionResult = Stage.DetectNextCollision(actor, deltaTime);
         if (collisionResult != null)
         {
-            // advance the actor normally until the collision point
             TimeDelta timeUntilCollision = TimeDelta.FromSeconds(collisionResult.Value.Time);
             actor.Advance(timeUntilCollision);
             actor.IsOnGround = true;
-
-            // calculate the velocity to use after the collision
-            Velocity originalVelocity = actor.Velocity;
-            float dotProduct = Velocity.Dot(originalVelocity, collisionResult.Value.Normal);
-            Velocity velocityIntoSurface = collisionResult.Value.Normal * dotProduct;
-            Velocity nextVelocity = originalVelocity - velocityIntoSurface;
-
-            actor.Velocity = nextVelocity;
-
-            // debug
-            actor.Position = new PixelPosition(actor.Position.X, actor.Position.Y - 2);
-
-            TimeDelta remainingTime =
-                TimeDelta.FromSeconds(deltaTime.TotalSeconds - timeUntilCollision.TotalSeconds);
-
-            HandleMovement(actor, remainingTime);
         }
         else
         {

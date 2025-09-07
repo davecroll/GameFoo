@@ -40,6 +40,8 @@ public class Stage
             // if result != null, there's going to be a collision
             if (result != null && result.Value.Time < earliestTime)
             {
+                // Debug code
+                return result;
                 earliestCollision = result;
                 earliestTime = result.Value.Time;
             }

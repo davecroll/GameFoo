@@ -18,6 +18,8 @@ public static class CollisionSystem
         BoundingBox movingBox = actor.GetRoughBoundingBox();
         BoundingBox staticBox = tile.Bounds;
 
+        Console.WriteLine("Actor Box: {0}, Tile Box: {1}", movingBox, staticBox);
+
         // Frame velocity
         Velocity frameVelocity = actorVelocity * deltaTime.TotalSeconds;
         float dx = frameVelocity.X;
@@ -51,11 +53,35 @@ public static class CollisionSystem
         }
 
         // Entry and exit times
-        float xEntryTime = dx == 0 ? float.NegativeInfinity : xInvEntry / dx;
-        float xExitTime = dx == 0 ? float.PositiveInfinity : xInvExit / dx;
+        float xEntryTime, xExitTime;
+        if (dx == 0)
+        {
+            // Check if already overlapping on X axis
+            if (movingBox.Right <= staticBox.Left || movingBox.Left >= staticBox.Right)
+                return null; // No overlap, no collision possible
+            xEntryTime = float.NegativeInfinity;
+            xExitTime = float.PositiveInfinity;
+        }
+        else
+        {
+            xEntryTime = xInvEntry / dx;
+            xExitTime = xInvExit / dx;
+        }
 
-        float yEntryTime = dy == 0 ? float.NegativeInfinity : yInvEntry / dy;
-        float yExitTime = dy == 0 ? float.PositiveInfinity : yInvExit / dy;
+        float yEntryTime, yExitTime;
+        if (dy == 0)
+        {
+            // Check if already overlapping on Y axis
+            if (movingBox.Bottom <= staticBox.Top || movingBox.Top >= staticBox.Bottom)
+                return null; // No overlap, no collision possible
+            yEntryTime = float.NegativeInfinity;
+            yExitTime = float.PositiveInfinity;
+        }
+        else
+        {
+            yEntryTime = yInvEntry / dy;
+            yExitTime = yInvExit / dy;
+        }
 
         // Find earliest/latest times of collision
         float entryTime = Math.Max(xEntryTime, yEntryTime);
