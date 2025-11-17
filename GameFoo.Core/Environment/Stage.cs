@@ -48,6 +48,26 @@ public class Stage
         return earliestCollision;
     }
 
+    public bool IsActorSupported(IActor actor)
+    {
+        const int skin = 3; // pixels below the feet considered as support
+
+        BoundingBox box = actor.GetRoughBoundingBox(); // now fixed physics collider
+        int probeWidth = Math.Max(1, box.Width - 2); // shrink to avoid snagging adjacent walls
+        int probeLeft = box.Left + 1;
+        int probeTop = box.Bottom; // start right at the feet
+        BoundingBox footProbe = new(probeLeft, probeTop, probeWidth, skin);
+
+        foreach (Tile tile in _tileCache)
+        {
+            if (tile.Bounds.Intersects(footProbe))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private List<BoundingBox> GetCollisionBoxes()
     {
         return _tileCache

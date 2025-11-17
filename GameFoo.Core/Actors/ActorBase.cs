@@ -19,8 +19,18 @@ public abstract class ActorBase : IActor
 
     public IActorState State { get; private set; }
 
+    // Fixed physics collider (relative to Position). Tune as needed for your character.
+    // Chosen so bottom aligns near Position.Y + 40 across frames.
+    protected virtual PixelSize PhysicsColliderSize { get; } = new(12, 22);
+    protected virtual PixelPosition PhysicsColliderOffset { get; } = new(18, 18);
+
+    protected BoundingBox GetPhysicsBounds() =>
+        new(Position.X + PhysicsColliderOffset.X, Position.Y + PhysicsColliderOffset.Y,
+            PhysicsColliderSize.Width, PhysicsColliderSize.Height);
+
     public void SetState(IActorState state)
     {
+        // No position anchoring: physics uses a fixed collider independent of animation
         State.OnExit(this);
         State = state;
         State.OnEnter(this);
@@ -40,18 +50,13 @@ public abstract class ActorBase : IActor
 
     public BoundingBox GetRoughBoundingBox()
     {
-        List<BoundingBox> boxes = State.GetCollisionBoxes(Position);
-        int minX = boxes.Min(b => b.X);
-        int minY = boxes.Min(b => b.Y);
-        int maxX = boxes.Max(b => b.X + b.Width);
-        int maxY = boxes.Max(b => b.Y + b.Height);
-
-        return new BoundingBox(minX, minY, Math.Abs(maxX - minX), Math.Abs(maxY - minY));
+        // Use fixed physics collider for movement/collision
+        return GetPhysicsBounds();
     }
 
     public List<BoundingBox> GetCollisionBoxes(BoundingBox? areaOfConcern = null)
     {
-        // TODO: Do we need to implement this?
+        // For now, return animation collision boxes for rendering/combat debug only.
         if (areaOfConcern != null)
         {
             throw new ArgumentException("Area of concern not supported yet.");

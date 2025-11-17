@@ -10,6 +10,9 @@ namespace GameFoo.Application;
 public class Scene1Controller
 {
     private readonly GameScene _scene;
+    private int _lastFocusX;
+    private int _lastFocusY;
+    private const int VerticalDeadzone = 2; // pixels
 
     public Scene1Controller()
     {
@@ -24,7 +27,22 @@ public class Scene1Controller
         _scene = scene;
     }
 
-    public (int, int) FocusPoint => (_scene.Player.Position.X, _scene.Player.Position.Y);
+    public (int, int) FocusPoint
+    {
+        get
+        {
+            int x = _scene.Player.Position.X;
+            int y = _scene.Player.Position.Y;
+            // Apply a small vertical deadzone to avoid camera jitter from tiny animation-driven Y changes
+            if (Math.Abs(y - _lastFocusY) <= VerticalDeadzone)
+            {
+                y = _lastFocusY;
+            }
+            _lastFocusX = x;
+            _lastFocusY = y;
+            return (x, y);
+        }
+    }
 
     public void ApplyInputs(ActorControls controls)
     {

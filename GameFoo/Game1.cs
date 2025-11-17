@@ -74,7 +74,8 @@ public class Game1 : Game
 
         _controller.UpdateScene(deltaTime);
 
-        _camera.Position = new Vector2(_controller.FocusPoint.Item1, _controller.FocusPoint.Item2);
+        var focus = _controller.FocusPoint;
+        _camera.Follow(new Vector2(focus.Item1, focus.Item2));
 
         base.Update(gameTime);
     }

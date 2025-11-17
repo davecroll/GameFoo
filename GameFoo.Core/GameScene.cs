@@ -105,6 +105,13 @@ public class GameScene
         {
             actor.Advance(deltaTime);
         }
+
+        // Post-move grounded check: if there's no support beneath, clear grounded so gravity applies next frame
+        bool supported = Stage.IsActorSupported(actor);
+        if (!supported)
+        {
+            actor.IsOnGround = false;
+        }
     }
 
     public List<ISceneEntity> GetSceneEntities()
