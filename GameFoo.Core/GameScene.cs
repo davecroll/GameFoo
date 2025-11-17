@@ -58,9 +58,48 @@ public class GameScene
         CollisionResult? collisionResult = Stage.DetectNextCollision(actor, deltaTime);
         if (collisionResult != null)
         {
-            TimeDelta timeUntilCollision = TimeDelta.FromSeconds(collisionResult.Value.Time);
-            actor.Advance(timeUntilCollision);
-            actor.IsOnGround = true;
+            float t = collisionResult.Value.Time;
+            // Clamp to frame duration just in case
+            float frame = deltaTime.TotalSeconds;
+            if (t < 0f) t = 0f;
+            if (t > frame) t = frame;
+
+            // Move up to the collision time
+            if (t > 0f)
+            {
+                actor.Advance(TimeDelta.FromSeconds(t));
+            }
+
+            // Collision response: stop movement along the collision normal
+            Velocity n = collisionResult.Value.Normal;
+            Velocity v = actor.Velocity;
+            if (n.X != 0)
+            {
+                v = v.WithX(0);
+            }
+            if (n.Y != 0)
+            {
+                v = v.WithY(0);
+                if (n.Y == -1)
+                {
+                    // Collided with floor (surface normal pointing up)
+                    actor.IsOnGround = true;
+                }
+            }
+            actor.Velocity = v;
+
+            // If we started overlapped (t == 0), nudge out 1 pixel along normal to avoid sticking
+            if (collisionResult.Value.Time == 0f && (n.X != 0 || n.Y != 0))
+            {
+                actor.Position += new Velocity(n.X, n.Y);
+            }
+
+            // Advance the remainder of the frame for sliding along tangent
+            float remaining = frame - t;
+            if (remaining > 0f)
+            {
+                actor.Advance(TimeDelta.FromSeconds(remaining));
+            }
         }
         else
         {

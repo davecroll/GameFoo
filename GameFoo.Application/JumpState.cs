@@ -16,7 +16,7 @@ public class JumpState : ActorStateBase
 
     public override void OnEnter(IActor actor)
     {
-        int velocityY = -500;
+        int velocityY = -1000;
         actor.Velocity = new Velocity(actor.Velocity.X, velocityY);
         actor.IsOnGround = false;
     }

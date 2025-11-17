@@ -32,7 +32,7 @@ public class Stage
     public CollisionResult? DetectNextCollision(IActor actor, TimeDelta deltaTime)
     {
         CollisionResult? earliestCollision = null;
-        float? earliestTime = float.MaxValue;
+        float earliestTime = float.MaxValue;
 
         foreach (Tile tile in _tileCache)
         {
@@ -40,8 +40,6 @@ public class Stage
             // if result != null, there's going to be a collision
             if (result != null && result.Value.Time < earliestTime)
             {
-                // Debug code
-                return result;
                 earliestCollision = result;
                 earliestTime = result.Value.Time;
             }
